@@ -9,8 +9,10 @@ import UserSidebar from "./UserSidebar";
 import Column from "./Column";
 import SortableItem from "./SortableItem";
 import notificationSound from "./notification.mp3";
+import { useAuth } from "../../contexts/AuthContext";
 
 const UserDashboard = () => {
+  const { isAuthenticated } = useAuth();
   const [tasks, setTasks] = useState({
     "To Do": [],
     "In Progress": [],
@@ -112,6 +114,15 @@ const UserDashboard = () => {
         <h2 className="text-4xl font-bold text-gray-900 mb-6 text-center bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
           🚀 User Dashboard
         </h2>
+
+        {!isAuthenticated && (
+          <div className="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+            <p className="text-sm text-yellow-700">
+              You are viewing the dashboard in read-only mode. Please <a href="/login" className="font-medium underline text-yellow-700 hover:text-yellow-600">login</a> to access all features.
+            </p>
+          </div>
+        )}
+        
         <ToastContainer position="top-right" autoClose={5000} hideProgressBar />
 
         {/* Kanban Board */}

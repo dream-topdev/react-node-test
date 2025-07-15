@@ -34,7 +34,7 @@ const Login = () => {
   const location = useLocation();
   
   // Extract role from location state or default to user
-  const role = location.state?.role || "user";
+  const [selectedRole, setSelectedRole] = useState(location.state?.role || "user");
   const from = location.state?.from || "/";
 
   /**
@@ -131,8 +131,36 @@ const Login = () => {
       <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md transform transition duration-300 hover:scale-105">
         {/* Header */}
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          {role === "admin" ? "Admin Login" : "User Login"}
+          {selectedRole === "admin" ? "Admin Login" : "User Login"}
         </h2>
+
+              {/* Role Toggle */}
+              <div className="mb-6">
+          <div className="flex bg-gray-200 rounded-lg p-1">
+            <button
+              type="button"
+              onClick={() => setSelectedRole("user")}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                selectedRole === "user"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              User Login
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedRole("admin")}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                selectedRole === "admin"
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
+            >
+              Admin Login
+            </button>
+          </div>
+        </div>
 
         {/* Error display with animation */}
         {error && (
@@ -215,7 +243,7 @@ const Login = () => {
           <div>
             <span
               className="text-blue-600 text-sm hover:underline cursor-pointer"
-              onClick={() => navigate("/forgot-password", { state: { role } })}
+              onClick={() => navigate("/forgot-password", { state: { role: selectedRole } })}
             >
               Forgot Password?
             </span>
@@ -224,7 +252,7 @@ const Login = () => {
             <span className="text-gray-600 text-sm">Don't have an account? </span>
             <Link
               to="/signup"
-              state={{ role }}
+              state={{ role: selectedRole }}
               className="text-blue-600 text-sm hover:underline"
             >
               Sign up
@@ -232,7 +260,7 @@ const Login = () => {
           </div>
           <div>
             <Link
-              to="/"
+              to="/Landing"
               className="text-gray-500 text-sm hover:underline"
             >
               Back to Home

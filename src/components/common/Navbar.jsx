@@ -5,10 +5,10 @@ import { FaUserCircle, FaTasks } from "react-icons/fa";
 import TaskList from "../tasks/TaskList";
 
 const Navbar = () => {
-  const { logout } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const hideProfileRoutes = ["/", "/login", "/signup"];
+  const hideProfileRoutes = ["/", "/login", "/signup", "/landing"];
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [taskListOpen, setTaskListOpen] = useState(false);
@@ -31,7 +31,7 @@ const Navbar = () => {
       });
     }
   }, [location.pathname]); // Re-run when path changes
-
+  
   // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
@@ -57,7 +57,11 @@ const Navbar = () => {
       // Remove the correct profile from storage
       localStorage.removeItem(isAdminPortal ? "adminProfile" : "userProfile");
 
-      navigate("/");
+      if (isAdminPortal) {
+        navigate("/landing");
+      } else {
+        navigate("/user/dashboard");
+      }
     } catch (err) {
       console.error("Logout failed:", err);
     }
@@ -99,7 +103,7 @@ const Navbar = () => {
 
       <div className="flex items-center gap-4">
         {/* Task List Button (Hidden on Landing/Login/Signup) */}
-        {!hideProfileRoutes.includes(location.pathname) && (
+        {!hideProfileRoutes.includes(location.pathname) && isAuthenticated && (
           <div className="relative" ref={taskListRef}>
             <button
               onClick={() => setTaskListOpen(!taskListOpen)}
@@ -120,7 +124,7 @@ const Navbar = () => {
         )}
 
         {/* Profile Button (Hidden on Landing/Login/Signup) */}
-        {!hideProfileRoutes.includes(location.pathname) && (
+        {!hideProfileRoutes.includes(location.pathname) && isAuthenticated && (
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -136,7 +140,7 @@ const Navbar = () => {
               ) : (
                 <FaUserCircle className="text-2xl mr-2" />
               )}
-              <span>{profile.name}</span> {/* Display user's name */}
+              <span>{profile.name}</span>{/* Display user's name */}
             </button>
 
             {/* Dropdown Menu */}

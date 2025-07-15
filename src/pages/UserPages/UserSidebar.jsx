@@ -1,17 +1,20 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaChartBar, FaTasks, FaCalendarAlt, FaBell, FaUser } from "react-icons/fa";
+import { useAuth } from "../../contexts/AuthContext";
 
 const UserSidebar = () => {
   const location = useLocation();
-
-  // Sidebar links with icons
-  const menuItems = [
+  const { isAuthenticated } = useAuth();
+  // Sidebar links with icons - show only Dashboard when not authenticated
+  const menuItems = isAuthenticated ? [
     { path: "/user/dashboard", label: "Dashboard", icon: <FaChartBar /> },
     { path: "/user/userpage", label: "Create Tasks", icon: <FaTasks /> },
     { path: "/user/calendar", label: "Calendar", icon: <FaCalendarAlt /> },
     { path: "/user/notifications", label: "Notifications", icon: <FaBell /> },
     { path: "/user/profile", label: "Profile", icon: <FaUser /> },
+  ] : [
+    { path: "/user/dashboard", label: "Dashboard", icon: <FaChartBar /> },
   ];
 
   return (
