@@ -51,6 +51,27 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
+      const email = localStorage.getItem("email");
+      if (email) {
+        try {
+          const existingLogs = JSON.parse(localStorage.getItem('userLogs') || '[]');
+
+          const updatedLogs = existingLogs.map(log => {
+            if (log.username === email && !log.logoutTime) {
+              return {
+                ...log,
+                logoutTime: new Date().toISOString()
+              };
+            }
+            return log;
+          });
+          
+          localStorage.setItem('userLogs', JSON.stringify(updatedLogs));
+        } catch (logError) {
+          console.error("Error updating logout logs:", logError);
+        }
+      }
+      
       await logout();
       const isAdminPortal = location.pathname.startsWith("/admin");
 

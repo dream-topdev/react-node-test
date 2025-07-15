@@ -18,6 +18,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FaTrash, FaSpinner, FaExclamationTriangle, FaUserShield, FaSort, FaFilter } from 'react-icons/fa';
+import Sidebar from "../../components/admin/Sidebar";
 
 const UserLogPage = () => {
   // State management with proper initialization
@@ -33,7 +34,8 @@ const UserLogPage = () => {
     role: 'all',
     search: ''
   });
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [selectedLogId, setSelectedLogId] = useState(null);
 
   /**
    * Load user logs from localStorage
@@ -216,13 +218,7 @@ const UserLogPage = () => {
    * 
    * @param {string} logId - ID of the log to delete
    */
-  const handleDelete = (logId) => {
-    // If not confirming, show confirmation first
-    if (deleteConfirm !== logId) {
-      setDeleteConfirm(logId);
-      return;
-    }
-    
+  const handleDelete = (logId) => {     
     // User confirmed deletion
     const updatedLogs = logs.filter(log => log.id !== logId);
     
@@ -234,38 +230,29 @@ const UserLogPage = () => {
     localStorage.setItem('userLogs', JSON.stringify(updatedLogs));
     
     // Reset confirmation state
-    setDeleteConfirm(null);
+    setDeleteConfirm(false);
+    setSelectedLogId('');
   };
 
   /**
    * Cancel delete confirmation
    */
   const cancelDelete = () => {
-    setDeleteConfirm(null);
+    setDeleteConfirm(false);
+    setSelectedLogId(null);
   };
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="p-6 flex justify-center items-center" aria-live="polite" role="status">
-        <FaSpinner className="animate-spin text-blue-500 text-2xl" aria-hidden="true" />
-        <span className="ml-2">Loading user logs...</span>
-      </div>
-    );
+  const handleDeleteButton = (logId) => {
+    setDeleteConfirm(true)
+    setSelectedLogId(logId)
   }
 
-  // Error state
-  if (error) {
-    return (
-      <div className="p-6 text-red-500 flex items-center" aria-live="assertive" role="alert">
-        <FaExclamationTriangle className="mr-2" aria-hidden="true" />
-        <span>{error}</span>
-      </div>
-    );
-  }
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow">
+    <div className="flex min-h-screen bg-gray-100">
+    {/* Sidebar */}
+    <Sidebar />
+    <div className="bg-white p-6 rounded-lg shadow flex-1">
       <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center">
         <FaUserShield className="mr-2" aria-hidden="true" />
         User Activity Logs
@@ -312,6 +299,20 @@ const UserLogPage = () => {
         Showing {filteredLogs.length} of {logs.length} logs
       </div>
       
+      {loading && (
+        <div className="p-6 flex justify-center items-center" aria-live="polite" role="status">
+          <FaSpinner className="animate-spin text-blue-500 text-2xl" aria-hidden="true" />
+            <span className="ml-2">Loading user logs...</span>
+        </div>
+      )}
+      {error && (
+        <div className="p-6 text-red-500 flex items-center" aria-live="assertive" role="alert">
+          <FaExclamationTriangle className="mr-2" aria-hidden="true" />
+          <span>{error}</span>
+        </div>
+      )} 
+      {!loading && !error && (
+      <>
       {/* Log table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
@@ -413,7 +414,7 @@ const UserLogPage = () => {
                     {log.ipAddress}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {deleteConfirm === log.id ? (
+                    {deleteConfirm && log.id === selectedLogId ? (
                       <div className="flex justify-end space-x-2">
                         <button
                           onClick={() => handleDelete(log.id)}
@@ -432,7 +433,7 @@ const UserLogPage = () => {
                       </div>
                     ) : (
                       <button
-                        onClick={() => handleDelete(log.id)}
+                        onClick={() => handleDeleteButton(log.id)}
                         className="text-red-600 hover:text-red-900"
                         aria-label={`Delete log for ${log.username}`}
                       >
@@ -445,6 +446,9 @@ const UserLogPage = () => {
             )}
           </tbody>
         </table>
+      </div>
+      </>
+      )}
       </div>
     </div>
   );

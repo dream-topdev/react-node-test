@@ -21,6 +21,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { FaLock, FaEnvelope, FaExclamationCircle, FaSpinner } from "react-icons/fa";
 import mockTasks  from "../../mock/mockTasks.js";
+import { v4 as uuidv4 } from "uuid";
 
 const Login = () => {
   // State management with proper initialization
@@ -95,6 +96,7 @@ const Login = () => {
         
         // Create log entry for admin tracking
         const logData = {
+          id: uuidv4(),
           userId: user.userId,
           username: email,
           role: user.role,
