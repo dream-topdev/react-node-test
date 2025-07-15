@@ -36,63 +36,14 @@ const TaskList = () => {
       try {
         // Simulate network delay for realistic UX
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         // Check for existing tasks in localStorage
         const storedTasks = localStorage.getItem('tasks');
-        
-        if (storedTasks) {
-          // Parse and use stored tasks
-          const parsedTasks = JSON.parse(storedTasks);
-          setTasks(parsedTasks);
-          setFilteredTasks(parsedTasks);
-        } else {
-          // Initialize with mock data if no stored tasks exist
-          const mockTasks = [
-            {
-              _id: '1',
-              title: 'Complete project documentation',
-              description: 'Write comprehensive documentation for the TaskFlow project',
-              status: 'incomplete',
-              priority: 'high',
-              dueDate: new Date().toISOString(),
-              createdAt: new Date().toISOString()
-            },
-            {
-              _id: '2',
-              title: 'Fix navigation bug',
-              description: 'Address the issue with sidebar navigation on mobile devices',
-              status: 'complete',
-              priority: 'medium',
-              dueDate: new Date().toISOString(),
-              createdAt: new Date(Date.now() - 86400000).toISOString()
-            },
-            {
-              _id: '3',
-              title: 'Implement user feedback',
-              description: 'Add the user feedback form to the dashboard',
-              status: 'incomplete',
-              priority: 'low',
-              dueDate: new Date(Date.now() + 86400000).toISOString(),
-              createdAt: new Date(Date.now() - 172800000).toISOString()
-            },
-            {
-              _id: '4',
-              title: 'Update dependencies',
-              description: 'Update all npm packages to their latest versions',
-              status: 'incomplete',
-              priority: 'medium',
-              dueDate: new Date(Date.now() + 172800000).toISOString(),
-              createdAt: new Date(Date.now() - 259200000).toISOString()
-            }
-          ];
-          
-          // Store mock tasks in localStorage for persistence
-          localStorage.setItem('tasks', JSON.stringify(mockTasks));
-          
-          setTasks(mockTasks);
-          setFilteredTasks(mockTasks);
-        }
-        
+
+        const parsedTasks = JSON.parse(storedTasks);
+        setTasks(parsedTasks);
+        setFilteredTasks(parsedTasks);
+
         setError(null);
       } catch (err) {
         console.error('Error loading tasks:', err);
@@ -103,7 +54,7 @@ const TaskList = () => {
     };
 
     loadTasks();
-    
+
     // Set up event listener for storage changes from other components
     const handleStorageChange = (e) => {
       if (e.key === 'tasks') {
@@ -116,10 +67,10 @@ const TaskList = () => {
         }
       }
     };
-    
+
     // Add event listener for storage changes
     window.addEventListener('storage', handleStorageChange);
-    
+
     // Clean up event listener on component unmount
     return () => {
       window.removeEventListener('storage', handleStorageChange);
@@ -133,23 +84,23 @@ const TaskList = () => {
    * @param {string} taskId - ID of the task to update
    */
   const handleStatusChange = (taskId) => {
-    const updatedTasks = tasks.map(task => 
-      task._id === taskId 
-        ? { 
-            ...task, 
-            status: task.status === 'complete' ? 'incomplete' : 'complete',
-            updatedAt: new Date().toISOString()
-          } 
+    const updatedTasks = tasks.map(task =>
+      task.id === taskId
+        ? {
+          ...task,
+          status: task.status === 'complete' ? 'incomplete' : 'complete',
+          updatedAt: new Date().toISOString()
+        }
         : task
     );
-    
+
     // Update local state
     setTasks(updatedTasks);
     setFilteredTasks(updatedTasks);
-    
+
     // Persist to localStorage for cross-component sharing
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
-    
+
     // Dispatch storage event for other components
     window.dispatchEvent(new StorageEvent('storage', {
       key: 'tasks',
@@ -163,7 +114,7 @@ const TaskList = () => {
    * @param {Object} task - Task object to edit
    */
   const startEditing = (task) => {
-    setEditingTask(task._id);
+    setEditingTask(task.id);
     setEditForm({
       title: task.title,
       description: task.description
@@ -195,27 +146,27 @@ const TaskList = () => {
       alert('Task title cannot be empty');
       return;
     }
-    
+
     // Update task with edited values
-    const updatedTasks = tasks.map(task => 
-      task._id === taskId 
-        ? { 
-            ...task, 
-            title: editForm.title, 
-            description: editForm.description,
-            updatedAt: new Date().toISOString()
-          } 
+    const updatedTasks = tasks.map(task =>
+      task.id === taskId
+        ? {
+          ...task,
+          title: editForm.title,
+          description: editForm.description,
+          updatedAt: new Date().toISOString()
+        }
         : task
     );
-    
+
     // Update local state
     setTasks(updatedTasks);
     setFilteredTasks(updatedTasks);
     setEditingTask(null);
-    
+
     // Persist to localStorage for cross-component sharing
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
-    
+
     // Dispatch storage event for other components
     window.dispatchEvent(new StorageEvent('storage', {
       key: 'tasks',
@@ -293,7 +244,7 @@ const TaskList = () => {
     return (
       <div className="p-4 text-center text-gray-500" aria-live="polite">
         <p>No tasks found. Create a new task to get started.</p>
-        <button 
+        <button
           className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
           onClick={() => {
             // In a real app, this would open a task creation modal or redirect
@@ -309,16 +260,16 @@ const TaskList = () => {
   return (
     <div className="bg-white p-4 rounded-lg shadow max-h-96 overflow-y-auto">
       <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">Your Tasks</h3>
-      
+
       <ul className="space-y-3" aria-label="Task list">
         {filteredTasks.map((task) => (
-          <li key={task._id} className="border-b pb-3">
-            {editingTask === task._id ? (
+          <li key={task.id} className="border-b pb-3">
+            {editingTask === task.id ? (
               // Edit form
               <div className="space-y-2">
-                <label htmlFor={`title-${task._id}`} className="sr-only">Task title</label>
+                <label htmlFor={`title-${task.id}`} className="sr-only">Task title</label>
                 <input
-                  id={`title-${task._id}`}
+                  id={`title-${task.id}`}
                   type="text"
                   name="title"
                   value={editForm.title}
@@ -326,10 +277,10 @@ const TaskList = () => {
                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   placeholder="Task title"
                 />
-                
-                <label htmlFor={`description-${task._id}`} className="sr-only">Task description</label>
+
+                <label htmlFor={`description-${task.id}`} className="sr-only">Task description</label>
                 <textarea
-                  id={`description-${task._id}`}
+                  id={`description-${task.id}`}
                   name="description"
                   value={editForm.description}
                   onChange={handleInputChange}
@@ -337,7 +288,7 @@ const TaskList = () => {
                   placeholder="Task description"
                   rows="2"
                 ></textarea>
-                
+
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={() => cancelEditing()}
@@ -347,7 +298,7 @@ const TaskList = () => {
                     Cancel
                   </button>
                   <button
-                    onClick={() => saveTask(task._id)}
+                    onClick={() => saveTask(task.id)}
                     className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                     aria-label="Save task"
                   >
@@ -364,12 +315,11 @@ const TaskList = () => {
                   </h4>
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => handleStatusChange(task._id)}
-                      className={`p-1 rounded ${
-                        task.status === 'complete' 
-                          ? 'bg-green-100 text-green-600' 
+                      onClick={() => handleStatusChange(task.id)}
+                      className={`p-1 rounded ${task.status === 'complete'
+                          ? 'bg-green-100 text-green-600'
                           : 'bg-gray-100 text-gray-600'
-                      } hover:opacity-80 transition-opacity`}
+                        } hover:opacity-80 transition-opacity`}
                       title={task.status === 'complete' ? 'Mark as incomplete' : 'Mark as complete'}
                       aria-label={task.status === 'complete' ? 'Mark as incomplete' : 'Mark as complete'}
                     >
@@ -385,27 +335,26 @@ const TaskList = () => {
                     </button>
                   </div>
                 </div>
-                
+
                 <p className={`text-sm mt-1 ${task.status === 'complete' ? 'text-gray-400' : 'text-gray-600'}`}>
                   {task.description}
                 </p>
-                
+
                 <div className="mt-2 flex flex-wrap gap-2 justify-between items-center">
                   <div className="flex flex-wrap gap-2">
-                    <span 
-                      className={`text-xs px-2 py-1 rounded flex items-center ${
-                        task.status === 'complete' 
-                          ? 'bg-green-100 text-green-800' 
+                    <span
+                      className={`text-xs px-2 py-1 rounded flex items-center ${task.status === 'complete'
+                          ? 'bg-green-100 text-green-800'
                           : 'bg-yellow-100 text-yellow-800'
-                      }`}
+                        }`}
                       aria-label={`Status: ${task.status}`}
                     >
                       <FaCheck className="mr-1" aria-hidden="true" />
                       {task.status === 'complete' ? 'Complete' : 'Incomplete'}
                     </span>
-                    
+
                     {task.priority && (
-                      <span 
+                      <span
                         className={`text-xs px-2 py-1 rounded flex items-center ${getPriorityClasses(task.priority)}`}
                         aria-label={`Priority: ${task.priority}`}
                       >
@@ -414,9 +363,9 @@ const TaskList = () => {
                       </span>
                     )}
                   </div>
-                  
+
                   {task.dueDate && (
-                    <span 
+                    <span
                       className="text-xs text-gray-500 flex items-center"
                       title={`Due date: ${new Date(task.dueDate).toLocaleString()}`}
                     >

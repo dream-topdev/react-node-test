@@ -17,6 +17,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FaCheck, FaEdit, FaSpinner, FaExclamationTriangle, FaCalendarAlt, FaFlag } from 'react-icons/fa';
+import mockTasks from '../../mock/mockTasks';
 
 const TaskList = () => {
   // State management with proper initialization
@@ -45,47 +46,7 @@ const TaskList = () => {
           const parsedTasks = JSON.parse(storedTasks);
           setTasks(parsedTasks);
           setFilteredTasks(parsedTasks);
-        } else {
-          // Initialize with mock data if no stored tasks exist
-          const mockTasks = [
-            {
-              _id: '1',
-              title: 'Complete project documentation',
-              description: 'Write comprehensive documentation for the TaskFlow project',
-              status: 'incomplete',
-              priority: 'high',
-              dueDate: new Date().toISOString(),
-              createdAt: new Date().toISOString()
-            },
-            {
-              _id: '2',
-              title: 'Fix navigation bug',
-              description: 'Address the issue with sidebar navigation on mobile devices',
-              status: 'complete',
-              priority: 'medium',
-              dueDate: new Date().toISOString(),
-              createdAt: new Date(Date.now() - 86400000).toISOString()
-            },
-            {
-              _id: '3',
-              title: 'Implement user feedback',
-              description: 'Add the user feedback form to the dashboard',
-              status: 'incomplete',
-              priority: 'low',
-              dueDate: new Date(Date.now() + 86400000).toISOString(),
-              createdAt: new Date(Date.now() - 172800000).toISOString()
-            },
-            {
-              _id: '4',
-              title: 'Update dependencies',
-              description: 'Update all npm packages to their latest versions',
-              status: 'incomplete',
-              priority: 'medium',
-              dueDate: new Date(Date.now() + 172800000).toISOString(),
-              createdAt: new Date(Date.now() - 259200000).toISOString()
-            }
-          ];
-          
+        } else {       
           // Store mock tasks in localStorage for persistence
           localStorage.setItem('tasks', JSON.stringify(mockTasks));
           
@@ -134,7 +95,7 @@ const TaskList = () => {
    */
   const handleStatusChange = (taskId) => {
     const updatedTasks = tasks.map(task => 
-      task._id === taskId 
+      task.id === taskId 
         ? { 
             ...task, 
             status: task.status === 'complete' ? 'incomplete' : 'complete',
@@ -163,7 +124,7 @@ const TaskList = () => {
    * @param {Object} task - Task object to edit
    */
   const startEditing = (task) => {
-    setEditingTask(task._id);
+    setEditingTask(task.id);
     setEditForm({
       title: task.title,
       description: task.description
@@ -198,7 +159,7 @@ const TaskList = () => {
     
     // Update task with edited values
     const updatedTasks = tasks.map(task => 
-      task._id === taskId 
+      task.id === taskId 
         ? { 
             ...task, 
             title: editForm.title, 
@@ -312,13 +273,13 @@ const TaskList = () => {
       
       <ul className="space-y-3" aria-label="Task list">
         {filteredTasks.map((task) => (
-          <li key={task._id} className="border-b pb-3">
-            {editingTask === task._id ? (
+          <li key={task.id} className="border-b pb-3">
+            {editingTask === task.id ? (
               // Edit form
               <div className="space-y-2">
-                <label htmlFor={`title-${task._id}`} className="sr-only">Task title</label>
+                <label htmlFor={`title-${task.id}`} className="sr-only">Task title</label>
                 <input
-                  id={`title-${task._id}`}
+                  id={`title-${task.id}`}
                   type="text"
                   name="title"
                   value={editForm.title}
@@ -327,9 +288,9 @@ const TaskList = () => {
                   placeholder="Task title"
                 />
                 
-                <label htmlFor={`description-${task._id}`} className="sr-only">Task description</label>
+                <label htmlFor={`description-${task.id}`} className="sr-only">Task description</label>
                 <textarea
-                  id={`description-${task._id}`}
+                  id={`description-${task.id}`}
                   name="description"
                   value={editForm.description}
                   onChange={handleInputChange}
@@ -347,7 +308,7 @@ const TaskList = () => {
                     Cancel
                   </button>
                   <button
-                    onClick={() => saveTask(task._id)}
+                    onClick={() => saveTask(task.id)}
                     className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                     aria-label="Save task"
                   >
@@ -364,7 +325,7 @@ const TaskList = () => {
                   </h4>
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => handleStatusChange(task._id)}
+                      onClick={() => handleStatusChange(task.id)}
                       className={`p-1 rounded ${
                         task.status === 'complete' 
                           ? 'bg-green-100 text-green-600' 

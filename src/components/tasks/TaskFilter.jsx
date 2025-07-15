@@ -252,7 +252,7 @@ const TaskFilter = () => {
       ) : (
         <ul className="divide-y divide-gray-200">
           {filteredTasks.map((task) => (
-            <li key={task._id} className="py-4">
+            <li key={task.id} className="py-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <h3 className={`text-lg font-medium ${task.status === 'complete' ? 'line-through text-gray-500' : 'text-gray-900'}`}>

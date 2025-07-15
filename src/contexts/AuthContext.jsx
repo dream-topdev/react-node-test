@@ -117,6 +117,7 @@ const AuthProvider = ({ children }) => {
     localStorage.removeItem("userRole");
     localStorage.removeItem("userId");
     localStorage.removeItem("email");
+    localStorage.removeItem("tasks");
     
     // Reset user state
     setUser(null);

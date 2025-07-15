@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import UserSidebar from "./UserSidebar";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,6 +13,10 @@ const UserPage = () => {
     deadline: "",
     progress: 0,
   });
+
+  // Task filtering states
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     // ✅ Fetch logged-in user from localStorage
@@ -30,11 +34,11 @@ const UserPage = () => {
     if (!newTask.title.trim() || !newTask.description.trim()) return;
 
     const taskId = Date.now().toString();
-    
+
     // ✅ Assign task to logged-in user
-    const newTaskItem = { 
-      id: taskId, 
-      ...newTask, 
+    const newTaskItem = {
+      id: taskId,
+      ...newTask,
       assignedTo: loggedInUser // ✅ Store assigned user
     };
 
@@ -73,13 +77,28 @@ const UserPage = () => {
     return "text-green-600 font-bold"; // Low priority
   };
 
+  // Filter tasks based on status and search term
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase());
+
+      if (statusFilter === "all") {
+        return matchesSearch;
+      } else if (statusFilter === "complete") {
+        return task.progress === 100 && matchesSearch;
+      } else if (statusFilter === "incomplete") {
+        return task.progress < 100 && matchesSearch;
+      }
+    });
+  }, [tasks, searchTerm, statusFilter]);
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <UserSidebar />
 
       <div className="flex-1 p-6">
         <h1 className="text-4xl font-bold mb-6 text-center w-full">
-          <span>🎯</span> 
+          <span>🎯</span>
           <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
             User Task Management
           </span>
@@ -149,12 +168,38 @@ const UserPage = () => {
           </form>
         </div>
 
+        {/* Task Filter and Search */}
+        <div className="flex flex-col md:flex-row gap-4 p-4">
+          <div className="w-full md:w-1/2">
+            <label className="text-sm font-medium text-gray-700 mb-2">Status Filter</label>
+            <select
+              className="w-full p-3 border rounded-lg"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Tasks</option>
+              <option value="complete">Complete Tasks</option>
+              <option value="incomplete">Incomplete Tasks</option>
+            </select>
+          </div>
+          <div className="w-full md:w-1/2">
+            <label className="text-sm font-medium text-gray-700 mb-2">Search by Title</label>
+            <input
+              type="text"
+              placeholder="Search tasks..."
+              className="w-full p-3 border rounded-lg"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
         {/* Task List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tasks.length === 0 ? (
+          {filteredTasks.length === 0 ? (
             <p className="text-gray-600">No tasks created yet. Start by adding a task!</p>
           ) : (
-            tasks.map((task) => (
+            filteredTasks.map((task) => (
               <div key={task.id} className="bg-white shadow-md p-4 rounded-md border-l-4 border-blue-400">
                 <h3 className="text-lg font-semibold">{task.title}</h3>
                 <p className="text-gray-600">{task.description}</p>

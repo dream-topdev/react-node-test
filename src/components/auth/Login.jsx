@@ -20,6 +20,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { FaLock, FaEnvelope, FaExclamationCircle, FaSpinner } from "react-icons/fa";
+import mockTasks  from "../../mock/mockTasks.js";
 
 const Login = () => {
   // State management with proper initialization
@@ -90,6 +91,7 @@ const Login = () => {
         localStorage.setItem("userRole", user.role);
         localStorage.setItem("userId", user.userId);
         localStorage.setItem("email", email);
+        localStorage.setItem('tasks', JSON.stringify(mockTasks));
         
         // Create log entry for admin tracking
         const logData = {
